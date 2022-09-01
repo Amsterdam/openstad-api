@@ -50,7 +50,7 @@
     "pmx": "^1.6.7",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
-    "sanitize-html": "^2.5.1",
+    "sanitize-html": "^2.7.1",
     "sequelize": "^6.11.0",
     "umzug": "^2.3.0",
     "useragent": "^2.3.0",
