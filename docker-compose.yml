@@ -71,10 +71,10 @@ services:
       - 8111:8111
     restart: unless-stopped
     volumes:
-        - ./api/src:/home/app/src
-        - ./api/config:/home/app/config
-        - ./api/fixtures:/home/app/fixtures
-        - /home/app/node_modules
+        # - ./src:/home/app/src
+        - ./config:/home/app/config
+        - ./fixtures:/home/app/fixtures
+        # - /home/app/node_modules
     networks:
       - database
     depends_on:
