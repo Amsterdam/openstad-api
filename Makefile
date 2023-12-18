@@ -21,6 +21,9 @@ help:                               ## Show this help.
 requirements:
 	npm i --package-lock-only
 
+init-db:							## Initiate database
+	$(run) api node reset.js
+
 migrate:                            ## Migrate
 	$(run) api node migrate.js
 

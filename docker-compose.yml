@@ -21,11 +21,11 @@ services:
     restart: unless-stopped
     ports:
       - "3306:3306"
-    entrypoint:
-      sh -c "
-        echo 'CREATE DATABASE IF NOT EXISTS ${AUTH_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${IMAGE_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${API_DATABASE};' > /docker-entrypoint-initdb.d/init.sql;
-        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-      "
+    # entrypoint:
+    #   sh -c "
+    #     echo 'CREATE DATABASE IF NOT EXISTS ${AUTH_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${IMAGE_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${API_DATABASE};' > /docker-entrypoint-initdb.d/init.sql;
+    #     /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    #   "
     volumes:
       - database:/var/lib/mysql
     networks:
