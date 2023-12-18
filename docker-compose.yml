@@ -30,6 +30,10 @@ services:
       - database:/var/lib/mysql
     networks:
       - database
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   api:
     command: npm run dev
@@ -78,7 +82,8 @@ services:
     networks:
       - database
     depends_on:
-      - "mysql"
+      mysql:
+        condition: service_healthy
 
 # Volumes section
 # Volumes:
