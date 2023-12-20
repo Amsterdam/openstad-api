@@ -24,6 +24,8 @@ requirements:
 init-db:							## Initiate database
 	$(run) api node reset.js
 
+init: init-db
+
 migrate:                            ## Migrate
 	$(run) api node migrate.js
 
