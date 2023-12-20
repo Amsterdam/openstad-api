@@ -1,9 +1,3 @@
-#
-# Docker Compose file for Openstad app, i
-# Is working, but not actively recommended for development, the mounts do not work nicely with de frontend app, very heavy and slow
-#
-
----
 version: '3.1'
 services:
   mysql:
@@ -21,11 +15,6 @@ services:
     restart: unless-stopped
     ports:
       - "3309:3306"
-    # entrypoint:
-    #   sh -c "
-    #     echo 'CREATE DATABASE IF NOT EXISTS ${AUTH_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${IMAGE_DB_NAME}; CREATE DATABASE IF NOT EXISTS ${API_DATABASE};' > /docker-entrypoint-initdb.d/init.sql;
-    #     /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    #   "
     volumes:
       - database:/var/lib/mysql
     networks:
@@ -53,51 +42,23 @@ services:
       API_DATABASE_PORT: 3309
       API_EMAILADDRESS: "admin@email.com"
       API_EXPRESS_PORT: "8111"
-#      API_MAIL_FROM: "admin@email.com"
-#      API_MAIL_TRANSPORT_SMTP_PORT: "${MAIL_TRANSPORT_SMTP_PORT}"
-#      API_MAIL_TRANSPORT_SMTP_HOST: "${MAIL_TRANSPORT_SMTP_HOST}"
-#      API_MAIL_TRANSPORT_SMTP_REQUIRESSL: "${MAIL_TRANSPORT_SMTP_REQUIRESSL}"
-#      API_MAIL_TRANSPORT_SMTP_AUTH_USER: "${MAIL_TRANSPORT_SMTP_AUTH_USER}"
-#      API_MAIL_TRANSPORT_SMTP_AUTH_PASS: "${MAIL_TRANSPORT_SMTP_AUTH_PASS}"
-#      API_NOTIFICATIONS_ADMIN_EMAILADDRESS: "${API_NOTIFICATIONS_ADMIN_EMAILADDRESS}"
-#      API_SECURITY_SESSIONS_COOKIENAME: "${API_SECURITY_SESSIONS_COOKIENAME}"
-#      API_SECURITY_SESSIONS_ONLYSECURE: "${API_SECURITY_SESSIONS_ONLYSECURE}"
-#      API_AUTHORIZATION_JWTSECRET: "${API_AUTHORIZATION_JWTSECRET}"
-#      API_AUTHORIZATION_FIXEDAUTHTOKENS: "${API_AUTHORIZATION_FIXEDAUTHTOKENS}"
       FRONTEND_URL: "http://localhost/"
       AUTH_URL: "http://localhost:4000"
       AUTH_INTERNAL_SERVER_URL: "http://localhost:4000"
-#      AUTH_FIRST_CLIENT_ID: "${AUTH_FIRST_CLIENT_ID}"
-#      AUTH_FIRST_CLIENT_SECRET: "${AUTH_FIRST_CLIENT_SECRET}"
-#      AUTH_FIRST_CLIENT_LOGIN_CODE: "${AUTH_FIRST_CLIENT_LOGIN_CODE}"
     expose:
       - 8111
     ports:
       - 8111:8111
     restart: unless-stopped
-    # volumes:
-        # - ./src:/home/app/src
-        # - ./config:/home/app/config
-        # - ./fixtures:/home/app/fixtures
-        # - /home/app/node_modules
     networks:
       - database
     depends_on:
       mysql:
         condition: service_healthy
 
-# Volumes section
-# Volumes:
-# - database: A volume that contains everything that is stored in the MySQL database.
-#
 volumes:
   database:
   mongo:
 
-#
-# Networks section
-# Networks:
-# - database, represents the isolated network between the server and the database.
 networks:
   database:
-...
