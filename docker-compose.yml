@@ -1,0 +1,64 @@
+version: '3.1'
+services:
+  mysql:
+    image: "mysql:5"
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: "insecure"
+      MYSQL_DATABASE: "api"
+      MYSQL_PASSWORD: "insecure"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+    expose:
+      - "3309"
+      - "33060"
+    restart: unless-stopped
+    ports:
+      - "3309:3306"
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  api:
+    command: npm run dev
+    image: ${REGISTRY:-localhost:5001}/${REPOSITORY:-opdrachten/openstad-api}:${VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: "development"
+      ADMIN_URL: "http://localhost:7777"
+      API_URL: "http://localhost:8111"
+      API_HOSTNAME: "http://localhost/"
+      API_DATABASE_USER: "root"
+      API_DATABASE_PASSWORD: "insecure"
+      API_DATABASE_DATABASE: "api"
+      API_DATABASE_HOST: "mysql"
+      API_DATABASE_PORT: 3309
+      API_EMAILADDRESS: "admin@email.com"
+      API_EXPRESS_PORT: "8111"
+      FRONTEND_URL: "http://localhost/"
+      AUTH_URL: "http://localhost:4000"
+      AUTH_INTERNAL_SERVER_URL: "http://localhost:4000"
+    expose:
+      - 8111
+    ports:
+      - 8111:8111
+    restart: unless-stopped
+    networks:
+      - database
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  database:
+  mongo:
+
+networks:
+  database:
