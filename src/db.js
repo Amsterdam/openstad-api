@@ -1,3 +1,5 @@
+import getAzureAuth from './util/azure-auth';
+
 var Sequelize = require('sequelize');
 var _         = require('lodash');
 var util      = require('./util');
