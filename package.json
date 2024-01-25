@@ -17,6 +17,7 @@
     "test:e2e:debug": "jest --no-cache --config jest-e2e.config.js --verbose --forceExit"
   },
   "dependencies": {
+    "@azure/identity": "^4.0.1",
     "@kubernetes/client-node": "^0.18.1",
     "aws-sdk": "^2.1373.0",
     "bcrypt": "^5.0.1",

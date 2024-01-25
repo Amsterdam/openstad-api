@@ -36,7 +36,7 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 	}
 }
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, process.env.AZURE_CLIENT_ID ? (await getAzureAuth()).dbPassword : dbConfig.password, {
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
@@ -66,6 +66,7 @@ var models = require('./models')(db, sequelize, Sequelize.DataTypes);
 
 // authentication mixins
 const mixins = require('./lib/sequelize-authorization/mixins');
+const { default: getAzureAuth } = require('./util/azure-auth');
 Object.keys(models).forEach((key) => {
   let model = models[key];
   model.can = model.prototype.can = mixins.can;
