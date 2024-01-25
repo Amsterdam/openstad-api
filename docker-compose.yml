@@ -26,7 +26,7 @@ services:
 
   api:
     command: npm run dev
-    image: ${REGISTRY:-localhost:5001}/${REPOSITORY:-opdrachten/openstad-api}:${VERSION:-latest}
+    image: ${REGISTRY:-127.0.0.1:5001}/${REPOSITORY:-opdrachten/openstad-api}:${VERSION:-latest}
     build:
       context: .
       dockerfile: Dockerfile
