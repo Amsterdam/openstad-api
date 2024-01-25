@@ -35,6 +35,8 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 		ca: [ process.env.MYSQL_CA_CERT ]
 	}
 }
+
+console.log("Check azure db password:", async () => (await getAzureAuth()).dbPassword)
 // var sequelize = new Sequelize(dbConfig.database, dbConfig.user, process.env.AZURE_CLIENT_ID ? (await util.getAzureAuth()).dbPassword : dbConfig.password, {
 var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
 	dialect        : dbConfig.dialect,
