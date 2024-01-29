@@ -63,7 +63,13 @@ const getAzureAuth = async () => {
 	return azureAuth
 }
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
+
+getAzureAuth().then((azureAuth) => {
+	console.log('mysqlPassword', azureAuth.dbPassword)
+})
+
+var sequelize = getAzureAuth().then((azureAuth) => {
+	return new Sequelize(dbConfig.database, dbConfig.user, azureAuth.dbPassword, {
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
@@ -84,7 +90,8 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (awa
 		max  : dbConfig.maxPoolSize,
 		idle : 10000
 	},
-});
+	});
+})
 
 
 // Define models.
