@@ -63,7 +63,7 @@ const getAzureAuth = async () => {
 	return azureAuth
 }
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, getAzureAuth(), {
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
