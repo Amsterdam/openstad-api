@@ -40,7 +40,7 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 
 let azureAuth
 
-const makeAzureAuth = async () => {
+const makeAzureAuth =  () => {
 	const scope = 'https://ossrdbms-aad.database.windows.net/.default'
 
     // This relies on environment variables that get injected.
@@ -49,27 +49,22 @@ const makeAzureAuth = async () => {
     // AZURE_TENANT_ID:            (Injected by the webhook)
     // AZURE_FEDERATED_TOKEN_FILE: (Injected by the webhook)
 	const credential = new WorkloadIdentityCredential()
-	const tokenResponse = await credential.getToken(scope)
+	const tokenResponse =  credential.getToken(scope)
 
 	return {
 		dbPassword: tokenResponse.token, // hier function van maken die async getToken van hierboven doet
 	}
 }
 
-const getAzureAuth = async () => {
+const getAzureAuth =  () => {
     if (!azureAuth) { 
-        azureAuth = await makeAzureAuth() 
+        azureAuth = makeAzureAuth() 
     }
 	return azureAuth
 }
 
 
-getAzureAuth().then((azureAuth) => {
-	console.log('mysqlPassword', azureAuth.dbPassword)
-})
-
-var sequelize = getAzureAuth().then((azureAuth) => {
-	return new Sequelize(dbConfig.database, dbConfig.user, azureAuth.dbPassword, {
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, getAzureAuth().dbPassword, {
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
@@ -90,8 +85,7 @@ var sequelize = getAzureAuth().then((azureAuth) => {
 		max  : dbConfig.maxPoolSize,
 		idle : 10000
 	},
-	});
-})
+});
 
 
 // Define models.
