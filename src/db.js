@@ -1,3 +1,5 @@
+const { DefaultAzureCredential } = require('@azure/identity');
+
 var Sequelize = require('sequelize');
 var _         = require('lodash');
 var util      = require('./util');
@@ -23,47 +25,85 @@ if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
 	}
 }
 
-const dialectOptions = {
-	charset            : 'utf8',
-	multipleStatements : dbConfig.multipleStatements,
-	socketPath         : dbConfig.socketPath
+async function getToken() {
+	const credential = new DefaultAzureCredential();
+	const tokenResponse = await credential.getToken('https://openstad-o-y6eks2r2zwsq4.mysql.database.azure.com');
+	return tokenResponse.token;
 }
 
-if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
-	dialectOptions.ssl = {
-		rejectUnauthorized: true,
-		ca: [ process.env.MYSQL_CA_CERT ]
+async function configureSequelize() {
+	const dialectOptions = {
+		charset            : 'utf8',
+		multipleStatements : dbConfig.multipleStatements,
+		socketPath         : dbConfig.socketPath,
+		token: await getToken(),
 	}
+
+	if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
+		dialectOptions.ssl = {
+			rejectUnauthorized: true,
+			ca: [ process.env.MYSQL_CA_CERT ]
+		}
+	}
+
+	var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
+		dialect        : dbConfig.dialect,
+		host           : dbConfig.host,
+		port					 : dbConfig.port || 3306,
+		database: dbConfig.database,
+		dialectOptions,
+		timeZone       : config.timeZone,
+		logging        : require('debug')('app:db:query'),
+		 // logging				 : console.log,
+		typeValidation : true,
+	
+		define: {
+			charset        : 'utf8',
+			underscored    : false, // preserve columName casing.
+			underscoredAll : true, // tableName to table_name.
+			paranoid       : true // deletedAt column instead of removing data.
+		},
+		pool: {
+			min  : 0,
+			max  : dbConfig.maxPoolSize,
+			idle : 10000
+		},
+	});
+
+	return sequelize;
 }
 
-console.log("Check azure db password:", async () => (await getAzureAuth()).dbPassword)
-// var sequelize = new Sequelize(dbConfig.database, dbConfig.user, process.env.AZURE_CLIENT_ID ? (await util.getAzureAuth()).dbPassword : dbConfig.password, {
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
-	dialect        : dbConfig.dialect,
-	host           : dbConfig.host,
-	port					 : dbConfig.port || 3306,
-	dialectOptions,
-	timeZone       : config.timeZone,
-	logging        : require('debug')('app:db:query'),
- 	// logging				 : console.log,
-	typeValidation : true,
 
-	define: {
-		charset        : 'utf8',
-		underscored    : false, // preserve columName casing.
-		underscoredAll : true, // tableName to table_name.
-		paranoid       : true // deletedAt column instead of removing data.
-	},
-	pool: {
-		min  : 0,
-		max  : dbConfig.maxPoolSize,
-		idle : 10000
-	},
-});
+// async () => console.log("Check azure db password:", (await getAzureAuth()).dbPassword)
+// // var sequelize = new Sequelize(dbConfig.database, dbConfig.user, process.env.AZURE_CLIENT_ID ? (await util.getAzureAuth()).dbPassword : dbConfig.password, {
+// var sequelize = new Sequelize(dbConfig.database, dbConfig.user, async () => (await getAzureAuth()).dbPassword, {
+// 	dialect        : dbConfig.dialect,
+// 	host           : dbConfig.host,
+// 	port					 : dbConfig.port || 3306,
+// 	dialectOptions,
+// 	timeZone       : config.timeZone,
+// 	logging        : require('debug')('app:db:query'),
+//  	// logging				 : console.log,
+// 	typeValidation : true,
+
+// 	define: {
+// 		charset        : 'utf8',
+// 		underscored    : false, // preserve columName casing.
+// 		underscoredAll : true, // tableName to table_name.
+// 		paranoid       : true // deletedAt column instead of removing data.
+// 	},
+// 	pool: {
+// 		min  : 0,
+// 		max  : dbConfig.maxPoolSize,
+// 		idle : 10000
+// 	},
+// });
+
+
 
 
 // Define models.
-var db     = {sequelize: sequelize};
+var db     = {sequelize: configureSequelize()};
 var models = require('./models')(db, sequelize, Sequelize.DataTypes);
 
 // authentication mixins
