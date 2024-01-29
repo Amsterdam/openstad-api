@@ -63,15 +63,22 @@ const getAzureAuth =  () => {
 	return azureAuth
 }
 
+console.log('getAzureAuth:', getAzureAuth())
+console.log('getAzureAuth().dbPassword:', getAzureAuth().dbPassword)
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, getAzureAuth().dbPassword, {
+const dbPassword = getAzureAuth().dbPassword
+
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, {
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
-	dialectOptions,
+	dialectOptions: {
+		...dialectOptions,
+		token: dbPassword
+	},
 	timeZone       : config.timeZone,
-	logging        : require('debug')('app:db:query'),
- 	// logging				 : console.log,
+	// logging        : require('debug')('app:db:query'),
+ 	logging				 : console.log,
 	typeValidation : true,
 
 	define: {
