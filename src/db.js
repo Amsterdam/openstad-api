@@ -42,7 +42,9 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
 		beforeConnect: async (config) => {
 			if (process.env.AZURE_CLIENT_ID) {
 				const azureAuth = await getAzureAuth()
+				console.log("azureAuth:", azureAuth)
 				const dbPassword = azureAuth.dbPassword
+				console.log("dbPassword:", dbPassword)
 				config.password = dbPassword
 			} else {
 				config.password = dbConfig.password
@@ -54,8 +56,8 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
 	port					 : dbConfig.port || 3306,
 	dialectOptions,
 	timeZone       : config.timeZone,
-	logging        : require('debug')('app:db:query'),
- 	// logging				 : console.log,
+	// logging        : require('debug')('app:db:query'),
+ 	logging				 : console.log,
 	typeValidation : true,
 
 	define: {
