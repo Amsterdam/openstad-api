@@ -41,7 +41,9 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
 	hooks: {
 		beforeConnect: async (config) => {
 			if (process.env.AZURE_CLIENT_ID) {
-				config.password = await getAzureAuth().dbPassword;
+				const azureAuth = await getAzureAuth()
+				const dbPassword = azureAuth.dbPassword
+				config.password = dbPassword
 			} else {
 				config.password = dbConfig.password
 			}
