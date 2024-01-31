@@ -3,8 +3,7 @@ const { WorkloadIdentityCredential } = require("@azure/identity");
 let azureAuth
 
 const makeAzureAuth = async () => {
-    const scope = process.env.AZURE_MYSQL_SCOPE
-    console.log("scope", scope)
+    const scope = 'https://ossrdbms-aad.database.windows.net/.default'
 
     // This relies on environment variables that get injected.
     // AZURE_AUTHORITY_HOST:       (Injected by the webhook)
@@ -14,17 +13,16 @@ const makeAzureAuth = async () => {
 
     const credential = new WorkloadIdentityCredential()
     console.log("credential:", credential)
-    credential.getToken(scope).then((token) => console.log("token:", token))
-    const token = await credential.getToken(scope)
+    const tokenResponse = await credential.getToken(scope)
+    console.log("token na await", tokenResponse)
+    const accessToken = tokenResponse.token
     return {
-        dbPassword: token.token
+        dbPassword: accessToken
     }
 }
 
 module.exports = async () => {
-    console.log("azure auth export function, azure auth:", azureAuth)
     if (!azureAuth) {
-        console.log("aanroepen makeAzureAuth")
         azureAuth = await makeAzureAuth()
     }
     return azureAuth
