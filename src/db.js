@@ -5,8 +5,7 @@ var util      = require('./util');
 var config    = require('config');
 var dbConfig  = config.get('database');
 
-var { WorkloadIdentityCredential } = require('@azure/identity')
-
+var getAzureAuth = require('./util/azure-auth')
 // newer versions of mysql (8+) have changed GeomFromText to ST_GeomFromText
 // this is a fix for sequalize
 if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
@@ -38,47 +37,23 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 	}
 }
 
-let azureAuth
-
-const makeAzureAuth =  () => {
-	const scope = 'https://ossrdbms-aad.database.windows.net/.default'
-
-    // This relies on environment variables that get injected.
-    // AZURE_AUTHORITY_HOST:       (Injected by the webhook)
-    // AZURE_CLIENT_ID:            (Injected by the webhook)
-    // AZURE_TENANT_ID:            (Injected by the webhook)
-    // AZURE_FEDERATED_TOKEN_FILE: (Injected by the webhook)
-	const credential = new WorkloadIdentityCredential()
-	const tokenResponse =  credential.getToken(scope)
-
-	return {
-		dbPassword: tokenResponse.token, // hier function van maken die async getToken van hierboven doet
-	}
-}
-
-const getAzureAuth =  () => {
-    if (!azureAuth) { 
-        azureAuth = makeAzureAuth() 
-    }
-	return azureAuth
-}
-
-console.log('getAzureAuth:', getAzureAuth())
-console.log('getAzureAuth().dbPassword:', getAzureAuth().dbPassword)
-
-const dbPassword = getAzureAuth().dbPassword
-
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, {
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
+	hooks: {
+		beforeConnect: async (config) => {
+			if (process.env.AZURE_CLIENT_ID) {
+				config.password = await getAzureAuth();
+			} else {
+				config.password = dbConfig.password
+			}
+		}
+	},
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
-	dialectOptions: {
-		...dialectOptions,
-		token: dbPassword
-	},
+	dialectOptions,
 	timeZone       : config.timeZone,
-	// logging        : require('debug')('app:db:query'),
- 	logging				 : console.log,
+	logging        : require('debug')('app:db:query'),
+ 	// logging				 : console.log,
 	typeValidation : true,
 
 	define: {
