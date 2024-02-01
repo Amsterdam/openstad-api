@@ -10,4 +10,4 @@ const scope = 'https://ossrdbms-aad.database.windows.net/.default'
 const credential = new WorkloadIdentityCredential()
 const getAzureAuthToken = async () => (await credential.getToken(scope)).token
 
-export default getAzureAuthToken
+module.export = getAzureAuthToken
