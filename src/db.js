@@ -27,7 +27,10 @@ if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
 const dialectOptions = {
 	charset            : 'utf8',
 	multipleStatements : dbConfig.multipleStatements,
-	socketPath         : dbConfig.socketPath
+	socketPath         : dbConfig.socketPath,
+	ssl: {
+		require: true
+	}
 }
 
 if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
