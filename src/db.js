@@ -28,7 +28,10 @@ const dialectOptions = {
 	charset            : 'utf8',
 	multipleStatements : dbConfig.multipleStatements,
 	socketPath         : dbConfig.socketPath,
-	ssl: {
+}
+
+if (process.env.AZURE_CLIENT_ID) {
+	dialectOptions.ssl = {
 		require: true
 	}
 }
