@@ -46,8 +46,8 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
 	hooks: {
 		beforeConnect: async (config) => {
-			if (!process.env.AZURE_CLIENT_ID) {
-				const azureAuthToken = await getAzureAuthToken
+			if (process.env.AZURE_CLIENT_ID) {
+				const azureAuthToken = await getAzureAuthToken()
 				config.password = azureAuthToken
 			} else {
 				config.password = dbConfig.password
