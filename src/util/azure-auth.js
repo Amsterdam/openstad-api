@@ -12,9 +12,7 @@ const makeAzureAuth = async () => {
     // AZURE_FEDERATED_TOKEN_FILE: (Injected by the webhook)
 
     const credential = new WorkloadIdentityCredential()
-    console.log("credential:", credential)
     const tokenResponse = await credential.getToken(scope)
-    console.log("token na await", tokenResponse)
     const accessToken = tokenResponse.token
     return {
         dbPassword: accessToken
@@ -27,5 +25,3 @@ module.exports = async () => {
     }
     return azureAuth
 }
-
-// module.exports = getAzureAuth()
