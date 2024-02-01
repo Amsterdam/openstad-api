@@ -5,7 +5,7 @@ var util      = require('./util');
 var config    = require('config');
 var dbConfig  = config.get('database');
 
-var getAzureAuth = require('./util/azure-auth')
+var getAzureAuthToken = require('./util/azure-auth')
 // newer versions of mysql (8+) have changed GeomFromText to ST_GeomFromText
 // this is a fix for sequalize
 if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
@@ -47,8 +47,8 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
 	hooks: {
 		beforeConnect: async (config) => {
 			if (process.env.AZURE_CLIENT_ID) {
-				const azureAuth = await getAzureAuth()
-				config.password = azureAuth.dbPassword
+				const azureAuthToken = await getAzureAuthToken()
+				config.password = azureAuthToken
 			} else {
 				config.password = dbConfig.password
 			}
