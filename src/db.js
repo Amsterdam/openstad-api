@@ -5,6 +5,7 @@ var util      = require('./util');
 var config    = require('config');
 var dbConfig  = config.get('database');
 
+var getAzureAuthToken = require('./util/azure-auth')
 // newer versions of mysql (8+) have changed GeomFromText to ST_GeomFromText
 // this is a fix for sequalize
 if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
@@ -26,7 +27,13 @@ if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
 const dialectOptions = {
 	charset            : 'utf8',
 	multipleStatements : dbConfig.multipleStatements,
-	socketPath         : dbConfig.socketPath
+	socketPath         : dbConfig.socketPath,
+}
+
+if (process.env.AZURE_CLIENT_ID) {
+	dialectOptions.ssl = {
+		require: true
+	}
 }
 
 if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
@@ -36,7 +43,17 @@ if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.M
 	}
 }
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
+	hooks: {
+		beforeConnect: async (config) => {
+			if (process.env.AZURE_CLIENT_ID) {
+				const azureAuthToken = await getAzureAuthToken()
+				config.password = azureAuthToken
+			} else {
+				config.password = dbConfig.password
+			}
+		}
+	},
 	dialect        : dbConfig.dialect,
 	host           : dbConfig.host,
 	port					 : dbConfig.port || 3306,
