@@ -27,6 +27,9 @@ ENV AUTH_API_URL=""
 # Install all base dependencies.# add perl for shell scripts
 RUN apk add --no-cache --update g++ make python3 musl-dev bash perl perl-dbd-mysql perl-posix-strftime-compiler
 
+# For debugging
+RUN apk add curl
+
 # RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/main' >> /etc/apk/repositories
 # RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/community' >> /etc/apk/repositories
 # RUN apk update
