@@ -5,8 +5,11 @@ const httpBuildQuery = require('../util/httpBuildQuery');
 const OAuthUser = require('./oauth-user');
 
 const formatOAuthApiUrl = (path, siteConfig, which = 'default') => {
+  console.log("==> formatOAuthApiUrl aangeroepen, met deze siteConfig:", siteConfig)
+  console.log("==> dus dit is siteOAuthConfig:", )
   let siteOauthConfig = (siteConfig && siteConfig.oauth && siteConfig.oauth[which]) || {};
-  let url = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
+  // Aanpassing in de code! : auth-server-url ==> auth-internal-server-url
+  let url = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
   url += path;
   let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
   url = url.replace(/\{\{clientId\}\}/, authClientId);
@@ -43,7 +46,7 @@ OAuthAPI.fetchClient = async function({ siteConfig, which = 'default' }) {
 		  return response.json();
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 1');
 		  console.log(err);
 	  });
 
@@ -74,19 +77,22 @@ OAuthAPI.updateClient = async function({ siteConfig, which = 'default', clientDa
 	    return json;
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 2');
 		  console.log(err);
 	  });
 
 }
 
 OAuthAPI.fetchUser = async function({ siteConfig, which = 'default', email, userId, token, raw = false }) {
+  console.log("==> userId:", userId)
+  console.log("==> email:", email)
+  console.log("==> token:", token)
 
   let path = '';
   if ( userId ) path = `/api/admin/user/${userId}`;
   if ( email  ) path = `/api/admin/users?email=${encodeURIComponent(email)}`;
   if ( token ) path = `/api/userinfo`;
-
+  console.log("==> path:", path)
   if (!path) throw new Error('no Find By arguments found')
 
   const oauthServerUrl = formatOAuthApiUrl(path, siteConfig, which);
@@ -111,7 +117,7 @@ OAuthAPI.fetchUser = async function({ siteConfig, which = 'default', email, user
 	    return user && !raw ? OAuthUser.parseDataForSite(siteConfig, user) : user;
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 3');
 		  console.log(err);
 	  });
 
@@ -132,7 +138,7 @@ OAuthAPI.createUser = async function({ siteConfig, which = 'default', userData =
 		  return response.json();
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 4');
 		  console.log(err);
 	  });
 
@@ -172,7 +178,7 @@ OAuthAPI.updateUser = async function({ siteConfig, which = 'default', userData =
 	    return user;
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 5');
 		  console.log(err);
 	  });
 
@@ -195,7 +201,7 @@ OAuthAPI.deleteUser = async function({ siteConfig, which = 'default', userData =
 		  return response.json();
 	  })
 	  .catch((err) => {
-		  console.log('Niet goed');
+		  console.log('Niet goed 6');
 		  console.log(err);
 	  });
 

@@ -98,7 +98,7 @@ var sites = [
     allowedDomains: allowedDomains
 	}},
 ];
-
+console.log("==> auth internal server URL:", process.env.AUTH_INTERNAL_SERVER_URL)
 console.log(sites);
 console.log(sites[0].config.oauth);
 console.log(sites[1].config.oauth);

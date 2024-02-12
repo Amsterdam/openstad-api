@@ -17,6 +17,9 @@ let router = express.Router({mergeParams: true});
  * Check if redirectURI same host as registered
  */
 const isAllowedRedirectDomain = (url, allowedDomains) => {
+    console.log("==> isAllowedRedirectDomain:")
+    console.log("==> url:", url)
+    console.log("==> allowedDomains:", allowedDomains)
     let redirectUrlHost = '';
     try {
         redirectUrlHost = new URL(url).hostname;
@@ -24,6 +27,7 @@ const isAllowedRedirectDomain = (url, allowedDomains) => {
     }
 
     // throw error if allowedDomains is empty or the redirectURI's host is not present in the allowed domains
+    console.log("==> allowedDomains && allowedDomains.indexOf(redirectUrlHost) !== -1 : ", allowedDomains && allowedDomains.indexOf(redirectUrlHost) !== -1)
     return allowedDomains && allowedDomains.indexOf(redirectUrlHost) !== -1;
 }
 
@@ -76,8 +80,9 @@ router
 
         // Todo: Refactor this code, this logic also lives in the user middleware
         let which = req.query.useOauth || 'default';
+        console.log("==> which:", which)
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
-        ;
+        console.log("==> req.site.config.oauth:", req.site.config.oauth);
         let authServerUrl = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
         let authServerExchangeCodePath = siteOauthConfig['auth-server-exchange-code-path'] || config.authorization['auth-server-exchange-code-path'];
         let url = authServerUrl + authServerExchangeCodePath;
@@ -91,7 +96,8 @@ router
             code: code,
             grant_type: 'authorization_code'
         }
-
+        console.log("==> digest-login gaat deze URL fetchen:", url)
+        console.log("==> met deze data in de body:", postData)
         fetch(
             url, {
                 method: 'post',
@@ -103,6 +109,7 @@ router
             })
             .then(
                 response => {
+                    console.log("==> en krijgt dan deze response:", response)
                     if (response.ok) return response.json()
                     throw createError('Login niet gelukt', response);
                 },
@@ -129,10 +136,10 @@ router
 
     })
     .get(function (req, res, next) {
-
+        console.log("==> req object waarin de siteconfig goed zou moeten staan:", req)
 		  const which = req.query.useOauth || 'default';
       let siteConfig = req.site && merge({}, req.site.config, { id: req.site.id });
-
+        console.log("==> fetchUser wordt aangeroepen vanuit routes/oauth")
       OAuthApi
         .fetchUser({ siteConfig, which, token: req.userAccessToken })
         .then(json => {
@@ -222,19 +229,28 @@ router
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
 
         let authServerUrl = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
-
+        console.log("==> req.query:", req.query)
         let returnTo = req.query.returnTo;
+        console.log("==> returnTo (wordt redirectUrl):", returnTo)
         let redirectUrl = returnTo ? returnTo + (returnTo.includes('?') ? '&' : '?') + 'jwt=[[jwt]]' : false;
+        console.log("==> redirectUrl 1:", redirectUrl)
         redirectUrl = redirectUrl || (req.query.returnTo ? req.query.returnTo + (req.query.returnTo.includes('?') ? '&' : '?') + 'jwt=[[jwt]]' : false);
+        console.log("==> redirectUrl 2:", redirectUrl)
         redirectUrl = redirectUrl || (req.site && req.site.config && req.site.config.cms['after-login-redirect-uri']) || siteOauthConfig['after-login-redirect-uri'] || config.authorization['after-login-redirect-uri'];
+        console.log("==> redirectUrl 3:", redirectUrl)
         redirectUrl = redirectUrl || '/';
+        console.log("==> redirectUrl 4:", redirectUrl)
 
         //check if redirect domain is allowed
+        console.log("==> check if redirect domain is allowed")
         if (isAllowedRedirectDomain(redirectUrl, req.site && req.site.config && req.site.config.allowedDomains)) {
+            console.log("==> isAllowedRedirectDomain check passed V")
             if (redirectUrl.match('[[jwt]]')) {
+                console.log("==> match met [[jwt]] is gevonden")
                 jwt.sign({userId: req.userData.id, client: which}, config.authorization['jwt-secret'], {expiresIn: 182 * 24 * 60 * 60}, (err, token) => {
                     if (err) return next(err)
                     req.redirectUrl = redirectUrl.replace('[[jwt]]', token);
+                    console.log("==> nieuwe redirect url met token:", req.redirectUrl)
                     return next();
                 });
             } else {
@@ -249,6 +265,7 @@ router
 
     })
     .get(function (req, res, next) {
+        console.log("==> res.redirect(req.redirectUrl) wordt aangeroepen met req.redirectUrl:", req.redirectUrl)
         res.redirect(req.redirectUrl);
     });
 
@@ -257,6 +274,9 @@ router
 router
     .route('(/site/:siteId)?/logout')
     .get(function (req, res, next) {
+
+        console.log("route /site/:siteId/logout, request before handling:", req)
+        console.log("route /site/:siteId/logout, response before handling:", res)
 
         if (req.user && req.user.id > 1) {
             req.user.update({
@@ -277,6 +297,11 @@ router
         if (req.query.redirectUrl) {
             url = `${url}&redirectUrl=${encodeURIComponent(req.query.redirectUrl)}`;
         }
+
+        console.log("route /site/:siteId/logout, request before redirecting:", req)
+        console.log("route /site/:siteId/logout, response before redirecting:", res)
+
+        console.log("redirect url:", url)
 
         res.redirect(url);
     });

@@ -114,6 +114,7 @@ router.route('/')
     let which = req.query.useOauth || 'default';
     let siteConfig = req.site && merge({}, req.site.config, { id: req.site.id });
     let email = req.body && req.body.email;
+    console.log("==> fetchUser wordt aangeroepen vanuit routes/api")
     OAuthApi
       .fetchUser({ siteConfig, which, email })
       .then(json => {
