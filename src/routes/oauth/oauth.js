@@ -275,8 +275,8 @@ router
     .route('(/site/:siteId)?/logout')
     .get(function (req, res, next) {
 
-        console.log("route /site/:siteId/logout, request before handling:", req)
-        console.log("route /site/:siteId/logout, response before handling:", res)
+        console.log("route /site/:siteId/logout, req.user:", req.user)
+        // console.log("route /site/:siteId/logout, response before handling:", res)
 
         if (req.user && req.user.id > 1) {
             req.user.update({
@@ -288,20 +288,25 @@ router
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
 
         let authServerUrl = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
+        console.log('==> authServerUrl: ', authServerUrl)
         let authServerGetUserPath = siteOauthConfig['auth-server-logout-path'] || config.authorization['auth-server-logout-path'];
+        console.log('==> authServerGetUserPath: ', authServerGetUserPath)
         let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
+        console.log('==> authClientId: ', authClientId)
         let url = authServerUrl + authServerGetUserPath;
+        console.log('==> url before replacing clientId: ', url)
 
         url = url.replace(/\[\[clientId\]\]/, authClientId);
-
+        console.log('==> url after replacing clientId: ', url)
+        console.log('==> req.query.redirectUrl: ', req.query.redirectUrl)
         if (req.query.redirectUrl) {
             url = `${url}&redirectUrl=${encodeURIComponent(req.query.redirectUrl)}`;
         }
+        console.log('==> url after adding redirectUrl: ', url)
+        // console.log("route /site/:siteId/logout, request before redirecting:", req)
+        // console.log("route /site/:siteId/logout, response before redirecting:", res)
 
-        console.log("route /site/:siteId/logout, request before redirecting:", req)
-        console.log("route /site/:siteId/logout, response before redirecting:", res)
-
-        console.log("redirect url:", url)
+        console.log("Next step is to redirect to this URL:", url)
 
         res.redirect(url);
     });
