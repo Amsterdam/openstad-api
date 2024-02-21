@@ -36,32 +36,45 @@ const isAllowedRedirectDomain = (url, allowedDomains) => {
 router
     .route('(/site/:siteId)?/login')
     .get(function (req, res, next) {
-
+        console.log('======= Reached inloggen part 1 ========')
+        console.log('==> req.query.forceNewLogin: ', req.query.forceNewLogin)
         if (req.query.forceNewLogin) {
             let baseUrl = config.url
-          let backToHereUrl = baseUrl + '/oauth/site/' + req.site.id + '/login?' + (req.query.useOauth ? 'useOauth=' + req.query.useOauth : '') + '&redirectUrl=' + encodeURIComponent(req.query.redirectUrl)
+            console.log("==> baseUrl: ", baseUrl)
+            let backToHereUrl = baseUrl + '/oauth/site/' + req.site.id + '/login?' + (req.query.useOauth ? 'useOauth=' + req.query.useOauth : '') + '&redirectUrl=' + encodeURIComponent(req.query.redirectUrl)
+            console.log("==> backToHereUrl before encoding: ", backToHereUrl)
             backToHereUrl = encodeURIComponent(backToHereUrl)
+            console.log("==> backToHereUrl after encoding: ", backToHereUrl)
             let url = baseUrl + '/oauth/site/' + req.site.id + '/logout?redirectUrl=' + backToHereUrl;
-
+            console.log("==> URL waarheen nu geredirect gaat worden: ", url)
             return res.redirect(url)
         }
 
         // Todo: Refactor this code, this logic also lives in the user middleware
         let which = req.query.useOauth || 'default';
+        console.log("==> which: ", which)
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
+        console.log("==> siteOauthConfig: ", siteOauthConfig)
         ;
         let authServerUrl = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
+        console.log("==> authServerUrl: ", authServerUrl)
         let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
+        console.log("==> authClientId: ", authClientId)
         let authServerLoginPath = siteOauthConfig['auth-server-login-path'] || config.authorization['auth-server-login-path'];
+        console.log("==> authServerLoginPath: ", authServerLoginPath)
         let authServerAdminLoginPath = siteOauthConfig['auth-server-admin-login-path'] || config.authorization['auth-server-admin-login-path'];
+        console.log("==> authServerAdminLoginPath: ", authServerAdminLoginPath)
 
         authServerLoginPath = req.query.loginPriviliged ? authServerAdminLoginPath : authServerLoginPath;
+        console.log("==> authServerLoginPath: ", authServerLoginPath)
 
         let url = authServerUrl + authServerLoginPath;
+        console.log("==> url step 1: ", url)
         url = url.replace(/\[\[clientId\]\]/, authClientId);
+        console.log("==> url step 2: ", url)
         //url = url.replace(/\[\[redirectUrl\]\]/, config.url + '/oauth/digest-login');
         url = url.replace(/\[\[redirectUrl\]\]/, encodeURIComponent(config.url + '/oauth/site/' + req.site.id + '/digest-login?useOauth=' + which + '\&returnTo=' + req.query.redirectUrl));
-
+        console.log("==> url step 3 before redirecting to it: ", url)
         res.redirect(url);
 
     });
@@ -71,10 +84,10 @@ router
 router
     .route('(/site/:siteId)?/digest-login')
     .get(function (req, res, next) {
-
+        console.log('======= Reached inloggen part 2 ========')
         // use the code to get an access token
         let code = req.query.code;
-
+        console.log("==> code: ", code)
         // TODO: meer afvangingen en betere response
         if (!code) throw createError(403, 'Je bent niet ingelogd');
 
@@ -82,13 +95,18 @@ router
         let which = req.query.useOauth || 'default';
         console.log("==> which:", which)
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
-        console.log("==> req.site.config.oauth:", req.site.config.oauth);
+        console.log("==> siteOauthConfig:", siteOauthConfig);
         let authServerUrl = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
+        console.log("==> authServerUrl: ", authServerUrl)
         let authServerExchangeCodePath = siteOauthConfig['auth-server-exchange-code-path'] || config.authorization['auth-server-exchange-code-path'];
+        console.log("==> authServerExchangeCodePath: ", authServerExchangeCodePath)
         let url = authServerUrl + authServerExchangeCodePath;
+        console.log("==> url: ", url)
 
         let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
+        console.log("==> authClientId: ", authClientId)
         let authClientSecret = siteOauthConfig['auth-client-secret'] || config.authorization['auth-client-secret'];
+        console.log("==> authClientSecret: ", authClientSecret)
 
         let postData = {
             client_id: authClientId,
