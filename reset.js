@@ -15,8 +15,10 @@ async function doReset() {
 
     await db.sequelize.sync({force})
 
-    console.log('Adding default data...');
-	  await require(`./fixtures/${datafile}`)(db);
+    if (force) {
+      console.log('Adding default data...');
+      await require(`./fixtures/${datafile}`)(db);
+    }
 
   } catch (err) {
     console.log(err);
