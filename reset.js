@@ -5,7 +5,7 @@ const datafile = process.env.NODE_ENV || 'development';
 const db = require('./src/db');
 
 // check for force flag '-f' on commandline to force sync, like: node reset.js -f
-const force = process.argv.indexOf('-f') > -1
+const force = process.argv.includes('-f')
 
 async function doReset() {
 
