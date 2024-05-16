@@ -119,7 +119,7 @@ async function getUserInstance({ siteConfig, which = 'default', userId, siteId }
   }
 
   try {
-    console.log("==> fetchUser wordt aangeroepen vanuit middleware/user")
+
     let oauthUser = await OAuthApi.fetchUser({ siteConfig, which, token: dbUser.externalAccessToken });
     if (!oauthUser) return await resetUserToken(dbUser);
 
