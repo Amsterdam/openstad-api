@@ -56,7 +56,7 @@ router
         url = url.replace(/\[\[clientId\]\]/, authClientId);
         //url = url.replace(/\[\[redirectUrl\]\]/, config.url + '/oauth/digest-login');
         url = url.replace(/\[\[redirectUrl\]\]/, encodeURIComponent(config.url + '/oauth/site/' + req.site.id + '/digest-login?useOauth=' + which + '\&returnTo=' + req.query.redirectUrl));
-        
+
         res.redirect(url);
 
     });
@@ -130,7 +130,7 @@ router
 
 		  const which = req.query.useOauth || 'default';
       let siteConfig = req.site && merge({}, req.site.config, { id: req.site.id });
-      
+
       OAuthApi
         .fetchUser({ siteConfig, which, token: req.userAccessToken })
         .then(json => {
@@ -271,7 +271,7 @@ router
         let url = authServerUrl + authServerGetUserPath;
 
         url = url.replace(/\[\[clientId\]\]/, authClientId);
-        
+
         if (req.query.redirectUrl) {
             url = `${url}&redirectUrl=${encodeURIComponent(req.query.redirectUrl)}`;
         }
