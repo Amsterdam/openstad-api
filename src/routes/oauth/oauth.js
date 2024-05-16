@@ -32,11 +32,13 @@ const isAllowedRedirectDomain = (url, allowedDomains) => {
 router
     .route('(/site/:siteId)?/login')
     .get(function (req, res, next) {
+
         if (req.query.forceNewLogin) {
             let baseUrl = config.url
             let backToHereUrl = baseUrl + '/oauth/site/' + req.site.id + '/login?' + (req.query.useOauth ? 'useOauth=' + req.query.useOauth : '') + '&redirectUrl=' + encodeURIComponent(req.query.redirectUrl)
             backToHereUrl = encodeURIComponent(backToHereUrl)
             let url = baseUrl + '/oauth/site/' + req.site.id + '/logout?redirectUrl=' + backToHereUrl;
+
             return res.redirect(url)
         }
 
@@ -54,6 +56,7 @@ router
         url = url.replace(/\[\[clientId\]\]/, authClientId);
         //url = url.replace(/\[\[redirectUrl\]\]/, config.url + '/oauth/digest-login');
         url = url.replace(/\[\[redirectUrl\]\]/, encodeURIComponent(config.url + '/oauth/site/' + req.site.id + '/digest-login?useOauth=' + which + '\&returnTo=' + req.query.redirectUrl));
+        
         res.redirect(url);
 
     });
@@ -63,8 +66,10 @@ router
 router
     .route('(/site/:siteId)?/digest-login')
     .get(function (req, res, next) {
+
         // use the code to get an access token
         let code = req.query.code;
+
         // TODO: meer afvangingen en betere response
         if (!code) throw createError(403, 'Je bent niet ingelogd');
 
@@ -100,6 +105,7 @@ router
                     throw createError('Login niet gelukt', response);
                 },
                 error => {
+                    console.log('ERR', error);
                     throw createError('Login niet gelukt');
                 }
             )
@@ -115,13 +121,16 @@ router
                 }
             )
             .catch(err => {
+                console.log(err);
                 return next(err);
             });
 
     })
     .get(function (req, res, next) {
+
 		  const which = req.query.useOauth || 'default';
       let siteConfig = req.site && merge({}, req.site.config, { id: req.site.id });
+      
       OAuthApi
         .fetchUser({ siteConfig, which, token: req.userAccessToken })
         .then(json => {
@@ -211,6 +220,7 @@ router
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
 
         let authServerUrl = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
+
         let returnTo = req.query.returnTo;
         let redirectUrl = returnTo ? returnTo + (returnTo.includes('?') ? '&' : '?') + 'jwt=[[jwt]]' : false;
         redirectUrl = redirectUrl || (req.query.returnTo ? req.query.returnTo + (req.query.returnTo.includes('?') ? '&' : '?') + 'jwt=[[jwt]]' : false);
@@ -261,6 +271,7 @@ router
         let url = authServerUrl + authServerGetUserPath;
 
         url = url.replace(/\[\[clientId\]\]/, authClientId);
+        
         if (req.query.redirectUrl) {
             url = `${url}&redirectUrl=${encodeURIComponent(req.query.redirectUrl)}`;
         }

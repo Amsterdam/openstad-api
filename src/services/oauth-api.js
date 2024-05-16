@@ -6,7 +6,7 @@ const OAuthUser = require('./oauth-user');
 
 const formatOAuthApiUrl = (path, siteConfig, which = 'default') => {
   let siteOauthConfig = (siteConfig && siteConfig.oauth && siteConfig.oauth[which]) || {};
-  // Aanpassing in de code! : auth-server-url ==> auth-internal-server-url
+  // Aanpassing in de code ten opzichte van upstream openstad repo: auth-server-url ==> auth-internal-server-url
   let url = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
   url += path;
   let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
