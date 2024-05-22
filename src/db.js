@@ -24,23 +24,22 @@ if (dbConfig.mysqlSTGeoMode || process.env.MYSQL_ST_GEO_MODE === 'on') {
 	}
 }
 
+let ssl = {}
+
+if (process.env.AZURE_CLIENT_ID) {
+	ssl.require = true
+}
+
+if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
+	ssl.rejectUnauthorized = true;
+	ssl.ca = [ process.env.MYSQL_CA_CERT ]
+}
+
 const dialectOptions = {
 	charset            : 'utf8',
 	multipleStatements : dbConfig.multipleStatements,
 	socketPath         : dbConfig.socketPath,
-}
-
-if (process.env.AZURE_CLIENT_ID) {
-	dialectOptions.ssl = {
-		require: true
-	}
-}
-
-if (process.env.MYSQL_CA_CERT && process.env.MYSQL_CA_CERT.trim && process.env.MYSQL_CA_CERT.trim()) {
-	dialectOptions.ssl = {
-		rejectUnauthorized: true,
-		ca: [ process.env.MYSQL_CA_CERT ]
-	}
+	ssl
 }
 
 var sequelize = new Sequelize(dbConfig.database, dbConfig.user, '', {
