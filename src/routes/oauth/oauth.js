@@ -35,7 +35,7 @@ router
 
         if (req.query.forceNewLogin) {
             let baseUrl = config.url
-            let backToHereUrl = baseUrl + '/oauth/site/' + req.site.id + '/login?' + (req.query.useOauth ? 'useOauth=' + req.query.useOauth : '') + '&redirectUrl=' + encodeURIComponent(req.query.redirectUrl)
+          let backToHereUrl = baseUrl + '/oauth/site/' + req.site.id + '/login?' + (req.query.useOauth ? 'useOauth=' + req.query.useOauth : '') + '&redirectUrl=' + encodeURIComponent(req.query.redirectUrl)
             backToHereUrl = encodeURIComponent(backToHereUrl)
             let url = baseUrl + '/oauth/site/' + req.site.id + '/logout?redirectUrl=' + backToHereUrl;
 
@@ -45,6 +45,7 @@ router
         // Todo: Refactor this code, this logic also lives in the user middleware
         let which = req.query.useOauth || 'default';
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
+        ;
         let authServerUrl = siteOauthConfig['auth-server-url'] || config.authorization['auth-server-url'];
         let authClientId = siteOauthConfig['auth-client-id'] || config.authorization['auth-client-id'];
         let authServerLoginPath = siteOauthConfig['auth-server-login-path'] || config.authorization['auth-server-login-path'];
@@ -76,6 +77,7 @@ router
         // Todo: Refactor this code, this logic also lives in the user middleware
         let which = req.query.useOauth || 'default';
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
+        ;
         let authServerUrl = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
         let authServerExchangeCodePath = siteOauthConfig['auth-server-exchange-code-path'] || config.authorization['auth-server-exchange-code-path'];
         let url = authServerUrl + authServerExchangeCodePath;
