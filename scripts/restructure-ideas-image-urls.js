@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+
 const db = require('../src/db');
 
 // Function to update image URLs
