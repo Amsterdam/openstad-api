@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../src/db');
 
 // Function to update image URLs
 async function updateImageUrls() {
