@@ -18,10 +18,10 @@ async function updateImageUrls() {
                 let updated = false;
                 // Go through all the images in the array
                 idea.extraData.images = idea.extraData.images.map(url => {
-                    if (url.startsWith('https://image.openstad.amsterdam.nl/image/')) {
+                    if (url.startsWith(process.env.IMAGE_URL_OLD_BASE_PATH)) {
                         updated = true;
                         const imageId = url.split('/').pop();
-                        return `https://openstad.amsterdam.nl/image/image/${imageId}`;
+                        return `${process.env.IMAGE_URL_NEW_BASE_PATH}/image/${imageId}`;
                     }
                     return url;
                 });
