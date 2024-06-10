@@ -4,8 +4,11 @@ const db = require('../src/db');
 
 // Function to update image URLs
 async function updateImageUrls() {
+    console.log(`Starting proces to update image URLs`)
     try {
         // Find all ideas where the extraData column is not null
+
+        console.log(`Going to look for ideas with extraData`)
         const ideas = await db.Idea.findAll({
             where: {
                 extraData: {
@@ -13,6 +16,10 @@ async function updateImageUrls() {
                 }
             }
         });
+
+        console.log(`Found ${ideas.length} ideas with extraData`)
+
+        console.log(`Going through all ideas to look for image-arrays including the URLs with the base ${process.env.IMAGE_URL_OLD_BASE_PATH}, to replace them with the URL base ${process.env.IMAGE_URL_NEW_BASE_PATH}`)
 
         for (let idea of ideas) {
             // Find all the ideas where extraData.images contains an array
