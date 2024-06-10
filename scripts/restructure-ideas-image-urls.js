@@ -36,6 +36,10 @@ async function updateImageUrls() {
                 });
 
                 if (updated) {
+                    // Mark extraData as changed
+                    idea.setDataValue('extraData', idea.extraData);
+                    idea.changed('extraData', true);
+                    
                     await idea.save({ hooks: false, validate: false }); // Bypass hooks and validation preventing the idea from saving
                     console.log(`Updated images for idea ID: ${idea.id}. The new image-URL's are: ${idea.extraData.images}`);
                 }
