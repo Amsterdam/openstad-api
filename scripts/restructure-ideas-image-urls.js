@@ -45,6 +45,9 @@ async function updateImageUrls() {
         console.log('Image URL update process completed.');
     } catch (error) {
         console.error('Unable to connect to the database:', error);
+    } finally {
+        console.log(`Closing the db conection...`)
+        db.sequelize.close()
     }
 }
 
