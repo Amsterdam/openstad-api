@@ -21,12 +21,13 @@ async function updateImageUrls() {
             continue
         }
 
-        for (let imageUrl of idea.extraData.images) {
+        idea.extraData.images = idea.extraData.images.map(imageUrl => {
             if (imageUrl.startsWith(process.env.IMAGE_URL_OLD_BASE_PATH)) {
-                imageUrl.replace(process.env.IMAGE_URL_OLD_BASE_PATH, process.env.IMAGE_URL_NEW_BASE_PATH)
                 isUpdated = true
+                return imageUrl.replace(process.env.IMAGE_URL_OLD_BASE_PATH, process.env.IMAGE_URL_NEW_BASE_PATH)
             }
-        }
+            return imageUrl
+        })
 
         if (!isUpdated) {
             continue
