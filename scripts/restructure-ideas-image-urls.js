@@ -14,7 +14,7 @@ async function updateImageUrls() {
 
     for (let idea of ideas) {
         
-        if (!idea.extraData?.images?.length > 1) {
+        if (!idea.extraData?.images?.length > 0) {
             continue
         }
 
