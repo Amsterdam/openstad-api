@@ -8,6 +8,7 @@ async function updateImageUrls() {
         ideas = await db.Idea.findAll();
     } catch (error) {
         console.error('Unable to connect to the database:', error);
+        return
     }
 
     console.log(`Image URL update process started for ${ideas.length} ideas (${process.env.IMAGE_URL_OLD_BASE_PATH} ==> ${process.env.IMAGE_URL_NEW_BASE_PATH})`)
@@ -30,7 +31,7 @@ async function updateImageUrls() {
         if (!isUpdated) {
             continue
         }
-        
+
         idea.setDataValue('extraData', idea.extraData)
         idea.changed('extraData', true);
 
