@@ -22,7 +22,7 @@ async function updateImageUrls() {
         }
 
         for (let imageUrl of idea.extraData.images) {
-            if (imageUrl.startWith(process.env.IMAGE_URL_OLD_BASE_PATH)) {
+            if (imageUrl.startsWith(process.env.IMAGE_URL_OLD_BASE_PATH)) {
                 imageUrl.replace(process.env.IMAGE_URL_OLD_BASE_PATH, process.env.IMAGE_URL_NEW_BASE_PATH)
                 isUpdated = true
             }
