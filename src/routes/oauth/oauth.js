@@ -78,7 +78,8 @@ router
         let which = req.query.useOauth || 'default';
         let siteOauthConfig = (req.site && req.site.config && req.site.config.oauth && req.site.config.oauth[which]) || {};
         ;
-        let authServerUrl = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
+        // let authServerUrl = siteOauthConfig['auth-internal-server-url'] || config.authorization['auth-server-url'];
+        let authServerUrl = process.env.AUTH_INTERNAL_SERVER_URL
         let authServerExchangeCodePath = siteOauthConfig['auth-server-exchange-code-path'] || config.authorization['auth-server-exchange-code-path'];
         let url = authServerUrl + authServerExchangeCodePath;
 
@@ -95,6 +96,7 @@ router
         console.log(`====> In 'inloggen 2', going to fetch from the following URL: ${url}`)
         console.log(`=====> authServerUrl: ${authServerUrl}`)
         console.log(`=====> authServerExchangeCodePath: ${authServerExchangeCodePath}`)
+        console.log(`=====> siteOauthConfig: ${siteOauthConfig}`)
 
         fetch(
             url, {
