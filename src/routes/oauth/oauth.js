@@ -92,6 +92,10 @@ router
             grant_type: 'authorization_code'
         }
 
+        console.log(`====> In 'inloggen 2', going to fetch from the following URL: ${url}`)
+        console.log(`=====> authServerUrl: ${authServerUrl}`)
+        console.log(`=====> authServerExchangeCodePath: ${authServerExchangeCodePath}`)
+
         fetch(
             url, {
                 method: 'post',
