@@ -13,7 +13,7 @@ const createError = require('http-errors')
 
 const router = express.Router({mergeParams: true});
 
-const getAzureAuthToken = require('./util/azure-auth')
+const getAzureAuthToken = require('../../util/azure-auth')
 
 /**
  * After SQL query only the missing
