@@ -81,7 +81,7 @@ router.route('/no-of-users')
 
         const pool = await createPool()
         pool
-            .promise()
+            // .promise()
             .query(query, bindvars)
             .then( ([rows,fields]) => {
                 console.log(rows);
