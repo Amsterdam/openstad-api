@@ -28,7 +28,7 @@ router
   })
 
 router.route('/total')
-  .get(function(req, res, next) {
+  .get(async (req, res, next) => {
 
     let query = `
         SELECT count(choicesGuideResults.id) AS counted 
