@@ -5,19 +5,26 @@ const express = require('express');
 const createError = require('http-errors')
 const getAzureAuthToken = require('../../util/azure-auth')
 
-const dbPassword = process.env.AZURE_CLIENT_ID ? await getAzureAuthToken() : dbConfig.password
-const pool = mysql.createPool({
-  host: dbConfig.host,
-  user: dbConfig.user,
-  password: dbPassword,
-  database: dbConfig.database,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  ssl: {
-    require: true
+const createPool = async () => {
+  try {
+    const dbPassword = process.env.AZURE_CLIENT_ID ? await getAzureAuthToken() : dbConfig.password
+    return mysql.createPool({
+      host: dbConfig.host,
+      user: dbConfig.user,
+      password: dbPassword,
+      database: dbConfig.database,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      ssl: {
+        require: true
+      }
+    });
+  } catch (e) {
+    console.log('Error while initialising SQL connection: ', e);
+    return next(createError(500, 'Error while initialising SQL connection: ', e));
   }
-});
+}
 
 let router = express.Router({mergeParams: true});
 
@@ -36,6 +43,7 @@ router.route('/total')
     let query = "SELECT count(ideas.id) AS counted FROM ideas WHERE ideas.publishDate < NOW() AND ideas.deletedAt IS NULL AND ideas.siteId=?";
     let bindvars = [req.params.siteId]
 
+    const pool = await createPool()
     pool
       .promise()
       .query(query, bindvars)
