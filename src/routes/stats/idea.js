@@ -45,7 +45,6 @@ router.route('/total')
 
     const pool = await createPool()
     pool
-      .promise()
       .query(query, bindvars)
       .then( ([rows,fields]) => {
         let counted = rows && rows[0] && rows[0].counted || -1;
