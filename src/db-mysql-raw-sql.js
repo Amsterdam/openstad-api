@@ -1,6 +1,6 @@
 const config    = require('config');
 const dbConfig  = config.get('database');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const getAzureAuthToken = require('./util/azure-auth')
 
 let pool;
