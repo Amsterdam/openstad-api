@@ -9,6 +9,8 @@ const morgan     = require('morgan')
 
 var reportErrors = config.sentry && config.sentry.active;
 
+const { createPool, setPool } = require('./db-mysql-raw-sql')
+
 module.exports  = {
 	app: undefined,
 
@@ -61,6 +63,31 @@ module.exports  = {
       }
 
       require('./middleware/error_handling')(this.app);
+
+      let mysqlConnectionPool
+      
+      const gracefulShutdownPool = (signal) => {
+        console.log(`Received signal ${signal}, closing MySQL connection pool`);
+        mysqlConnectionPool.end((err) => {
+          if (err) {
+            console.error(err);
+          }
+          console.log('MySQL connection pool closed');
+          process.exit(0);
+        })
+      }
+
+      try {
+        mysqlConnectionPool = await createPool();
+        setPool(mysqlConnectionPool);
+        console.log('MySQL connection pool created');
+
+        process.on('SIGINT', gracefulShutdownPool);
+        process.on('SIGTERM', gracefulShutdownPool);
+        process.on('SIGQUIT', gracefulShutdownPool);
+      } catch (e) {
+        console.log('Failed to create MySQL connection pool', e)
+      }
 	},
 
 	start: function( port ) {
