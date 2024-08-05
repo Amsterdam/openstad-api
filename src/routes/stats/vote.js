@@ -32,7 +32,7 @@ router.route('/total')
 
         const mysqlConnectionPool = getPool()
         if (!mysqlConnectionPool) {
-            throw new Error('MySQL connection pool is not initialized');
+        throw new Error('MySQL connection pool is not initialized');
         }
         mysqlConnectionPool
             .query(query, bindvars)
