@@ -13,7 +13,7 @@ router.route('/total')
 
 // count arguments
 // ---------------
-	.get(async (req, res, next) => {
+	.get(function(req, res, next) {
 
     let ideaId = req.query.ideaId;
     let sentiment = req.query.sentiment;
