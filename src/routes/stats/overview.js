@@ -13,6 +13,8 @@ const createError = require('http-errors')
 
 const router = express.Router({mergeParams: true});
 
+const getAzureAuthToken = require('../../util/azure-auth')
+
 /**
  * After SQL query only the missing
  *
@@ -225,11 +227,15 @@ router.route('/')
     })
     .get(async (req, res, next) => {
         try {
+            const dbPassword = process.env.AZURE_CLIENT_ID ? await getAzureAuthToken() : dbConfig.password
             req.mysqlConnection = await mysql.createConnection({
                 host: dbConfig.host,
                 user: dbConfig.user,
-                password: dbConfig.password,
+                password: dbPassword,
                 database: dbConfig.database,
+                ssl: {
+                    require: true
+                },
                 Promise
             });
 

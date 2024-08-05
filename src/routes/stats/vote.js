@@ -1,18 +1,6 @@
-const config    = require('config');
-const dbConfig  = config.get('database');
-const mysql = require('mysql2');
 const express = require('express');
 const createError = require('http-errors')
-
-const pool = mysql.createPool({
-    host: dbConfig.host,
-    user: dbConfig.user,
-    password: dbConfig.password,
-    database: dbConfig.database,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+const { getPool } = require('../../db-mysql-raw-sql')
 
 let router = express.Router({mergeParams: true});
 
@@ -42,8 +30,11 @@ router.route('/total')
             bindvars.push(req.query.opinion);
         }
 
-        pool
-            .promise()
+        const mysqlConnectionPool = getPool()
+        if (!mysqlConnectionPool) {
+        throw new Error('MySQL connection pool is not initialized');
+        }
+        mysqlConnectionPool
             .query(query, bindvars)
             .then( ([rows,fields]) => {
                 console.log(rows);
@@ -66,8 +57,11 @@ router.route('/no-of-users')
         let query = "SELECT count(votes.id) AS counted FROM votes LEFT JOIN ideas ON votes.ideaId = ideas.id WHERE ideas.siteId=? AND votes.deletedAt  IS NULL AND  (votes.checked IS NULL OR votes.checked = 1)  AND ideas.deletedAt IS NULL GROUP BY votes.userId";
         let bindvars = [req.params.siteId]
 
-        pool
-            .promise()
+        const mysqlConnectionPool = getPool()
+        if (!mysqlConnectionPool) {
+        throw new Error('MySQL connection pool is not initialized');
+        }
+        mysqlConnectionPool
             .query(query, bindvars)
             .then( ([rows,fields]) => {
                 console.log(rows);
