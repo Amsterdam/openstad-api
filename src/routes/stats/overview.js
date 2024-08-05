@@ -3,17 +3,12 @@
  *
  * For performance reasons MySQL queries are used instead of Sequalize
  */
-const config = require('config');
-const dbConfig = config.get('database');
-// get the client
-const mysql = require('mysql2/promise');
 
 const express = require('express');
 const createError = require('http-errors')
+const { getPool } = require('../../db-mysql-raw-sql')
 
 const router = express.Router({mergeParams: true});
-
-const getAzureAuthToken = require('../../util/azure-auth')
 
 /**
  * After SQL query only the missing
@@ -226,24 +221,11 @@ router.route('/')
         next();
     })
     .get(async (req, res, next) => {
-        try {
-            const dbPassword = process.env.AZURE_CLIENT_ID ? await getAzureAuthToken() : dbConfig.password
-            req.mysqlConnection = await mysql.createConnection({
-                host: dbConfig.host,
-                user: dbConfig.user,
-                password: dbPassword,
-                database: dbConfig.database,
-                ssl: {
-                    require: true
-                },
-                Promise
-            });
-
-            next();
-        } catch (e) {
-            console.log('Error while initialising SQL connection: ', e);
-            return next(createError(500, 'Error while initialising SQL connection: ', e));
+        const mysqlConnectionPool = getPool()
+        if (!mysqlConnectionPool) {
+            throw new Error('MySQL connection pool is not initialized');
         }
+        req.mysqlConnection = mysqlConnectionPool
     })
     .get((req, res, next) => {
         queries = req.queries.map(async (query) => {
@@ -265,12 +247,10 @@ router.route('/')
 
         Promise.all(queries)
             .then((result) => {
-                req.mysqlConnection.end();
                 req.stats = result;
                 next();
             })
             .catch((e) => {
-                req.mysqlConnection.end();
                 next(e);
             })
     })
