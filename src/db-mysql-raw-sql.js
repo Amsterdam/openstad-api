@@ -30,4 +30,13 @@ const setPool = (newPool) => pool = newPool
 
 const getPool = () => pool
 
-module.exports = { createPool, setPool, getPool }
+const setupPoolRefresh = async (intervalMs) => {
+  setPool(await createPool())
+
+  setInterval(async () => {
+    console.log('Refreshing MySQL connection pool with updated password')
+    setPool(await createPool())
+  }, intervalMs)
+}
+
+module.exports = { setupPoolRefresh, getPool }
