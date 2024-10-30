@@ -77,7 +77,7 @@ module.exports  = {
       }
 
       try {
-        const passwordExpirationInterval = process.env.MYSQL_PASSWORD_ROTATION_INTERVAL_MS ? process.env.MYSQL_PASSWORD_ROTATION_INTERVAL_MS : (30 * 60 * 1000)
+        const passwordExpirationInterval = process.env.MYSQL_PASSWORD_ROTATION_INTERVAL_MS ?? 30 * 60 * 1000
         await setupPoolRefresh(passwordExpirationInterval)
         console.log('MySQL connection pool created');
 
