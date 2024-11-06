@@ -4,7 +4,7 @@ const merge = require('merge');
 const {htmlToText} = require('html-to-text');
 const MailConfig = require('./mail-config');
 const mailTransporter = require('./mailTransporter');
-const { isWhitelistedEmail } = require('../utils/emailUtils');
+const { isWhitelistedEmail } = require('../utils/email-utils');
 
 
 const debug = require('debug');
