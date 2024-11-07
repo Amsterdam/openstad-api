@@ -4,6 +4,8 @@ const merge = require('merge');
 const {htmlToText} = require('html-to-text');
 const MailConfig = require('./mail-config');
 const mailTransporter = require('./mailTransporter');
+const { isWhitelistedEmail } = require('../util/email-utils');
+
 
 const debug = require('debug');
 const log = debug('app:mail:sent');
@@ -37,6 +39,9 @@ let defaultSendMailOptions = {
 
 // generic send mail function
 function sendMail(site, options) {
+  if (!isWhitelistedEmail(options.from)) {
+    options.from = 'no-reply@amsterdam.nl';
+  }
 
   if (options.attachments) {
     options.attachments.forEach((entry, index) => {
